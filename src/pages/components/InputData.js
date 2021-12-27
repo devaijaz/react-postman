@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { Tab, Tabs } from 'react-bootstrap';
-import { useHttpClientContext } from '../../context';
 import BodyInput from './core/BodyInput';
-import KeyValueInput from './core/KeyValueInput';
+import QueryStringInput from './QueryStringInput';
+import RequestHeader from './RequestHeader';
 
 const InputData = () => {
-  const { setHeader, setQueryString, queryString } = useHttpClientContext();
   const [key, setKey] = useState('home');
   return (
     <Tabs
@@ -15,10 +14,10 @@ const InputData = () => {
       className="mb-3 mt-3"
     >
       <Tab eventKey="home" title="Query Param">
-        <KeyValueInput update={setQueryString} />
+        <QueryStringInput />
       </Tab>
       <Tab eventKey="profile" title="Headers">
-        <KeyValueInput update={setHeader} />
+        <RequestHeader />
       </Tab>
       <Tab eventKey="contact" title="Body">
         <BodyInput />

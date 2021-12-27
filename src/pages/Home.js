@@ -3,16 +3,8 @@ import { Container, Row, Form, Col, Button, FloatingLabel, Card, Alert } from 'r
 import { useHttpClientContext } from '../context';
 import InputData from './components/InputData';
 import OutputData from './components/OutputData';
-import axios from 'axios';
-
-const asArray = (obj) => {
-  return Object.keys(obj).map(hKey => {
-    return {
-      key: hKey,
-      value: obj[hKey]
-    }
-  });
-};
+import { METHODS } from './constants';
+import { asArray, asMap, getAxiosMethod } from '../utils';
 
 const defaultValue = {
   generalInfo: [],
@@ -20,13 +12,6 @@ const defaultValue = {
   requestHeaders: [],
   value: "",
   error: ""
-}
-
-const getAxiosMethod = (method) => {
-  if (method === "post") {
-    return axios.post;
-  }
-  return axios.get;
 }
 
 const Home = () => {
@@ -37,9 +22,11 @@ const Home = () => {
     let newResult = { ...defaultValue };
     try {
       const response = await getAxiosMethod(method)(url, {
-        headers: { "Content-Type": "application/json", ...header },
-        params: queryString,
-        data: method === "post" ? JSON.stringify(body) : null
+        headers: {
+          "Content-Type": "application/json", ...asMap(header)
+        },
+        params: asMap(queryString),
+        data: ["post", "put", "patch"].includes(method) ? JSON.stringify(body) : null
       });
       const responseHeaders = asArray(response.headers);
       const requestHeaders = asArray(response.config.headers);
@@ -50,7 +37,6 @@ const Home = () => {
       });
       newResult = { ...newResult, responseHeaders, requestHeaders, generalInfo };
       const data = response.data;
-      console.log(data);
       newResult = { ...newResult, value: JSON.stringify(data, null, 2) };
       setResults(function (_) {
         return newResult
@@ -91,8 +77,9 @@ const HEADER = memo(({ submit }) => {
     <Col style={{ "flex": "1" }}>
       <FloatingLabel controlId="floatingSelectGrid" label="Method">
         <Form.Select aria-label="Floating label select example" value={method} onChange={e => setMethod(e.target.value)}>
-          <option value="get">GET</option>
-          <option value="post">POST</option>
+          {METHODS.map(m => {
+            return <option key={m.value} value={m.value}>{m.text}</option>
+          })}
         </Form.Select>
       </FloatingLabel>
     </Col>
@@ -102,7 +89,7 @@ const HEADER = memo(({ submit }) => {
       </FloatingLabel>
     </Col>
     <Col style={{ "flex": "1" }}>
-      <Button variant='primary' size="lg" className='mt-1' onClick={submit}>SUBMIT</Button>
+      <Button variant='primary' size="lg" className='pt-3 pb-2' onClick={submit}>SUBMIT</Button>
     </Col>
   </Row>
 })
