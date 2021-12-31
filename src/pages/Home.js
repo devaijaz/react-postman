@@ -3,6 +3,7 @@ import { Container, Row, Form, Col, Button, FloatingLabel, Card, Alert } from 'r
 import { useHttpClientContext } from '../context';
 import InputData from './components/InputData';
 import OutputData from './components/OutputData';
+
 import { METHODS } from './constants';
 import { asArray, asMap, getAxiosMethod } from '../utils';
 
@@ -11,14 +12,15 @@ const defaultValue = {
   responseHeaders: [],
   requestHeaders: [],
   value: "",
-  error: ""
+  error: "",
+  loading: false
 }
 
 const Home = () => {
   const { url, method, header, queryString, body } = useHttpClientContext();
   const [results, setResults] = useState(defaultValue);
   const handler = async () => {
-    setResults(defaultValue);
+    setResults({ ...defaultValue, loading: true });
     let newResult = { ...defaultValue };
     try {
       const response = await getAxiosMethod(method)(url, {
@@ -37,37 +39,39 @@ const Home = () => {
       });
       newResult = { ...newResult, responseHeaders, requestHeaders, generalInfo };
       const data = response.data;
-      newResult = { ...newResult, value: JSON.stringify(data, null, 2) };
+      newResult = { ...newResult, value: JSON.stringify(data, null, 2), loading: false };
       setResults(function (_) {
         return newResult
       });
     } catch (e) {
-      setResults((o) => { return { ...o, error: e.message } });
+      setResults((o) => { return { ...o, error: e.message, loading: false } });
     }
   }
 
   return (
-    <Container>
-      {results.error && <Alert variant="danger">
-        {results.error}
-      </Alert>}
-      <Card>
-        <Card.Body>
-          <HEADER submit={handler} />
-        </Card.Body>
-      </Card>
-      <Card className="mt-2">
-        <Card.Body>
-          <InputData />
-        </Card.Body>
-      </Card>
-      <Card className="mt-4">
-        <Card.Body>
-          <OutputData results={results} />
-        </Card.Body>
-      </Card>
+    <>
+      <Container>
+        {results.error && <Alert variant="danger">
+          {results.error}
+        </Alert>}
+        <Card>
+          <Card.Body>
+            <HEADER submit={handler} />
+          </Card.Body>
+        </Card>
+        <Card className="mt-2">
+          <Card.Body>
+            <InputData />
+          </Card.Body>
+        </Card>
+        <Card className="mt-4">
+          <Card.Body>
+            <OutputData results={results} />
+          </Card.Body>
+        </Card>
 
-    </Container >
+      </Container >
+    </>
   )
 }
 
@@ -89,7 +93,7 @@ const HEADER = memo(({ submit }) => {
       </FloatingLabel>
     </Col>
     <Col style={{ "flex": "1" }}>
-      <Button variant='primary' size="lg" className='pt-3 pb-2' onClick={submit}>SUBMIT</Button>
+      <Button variant='secondary' size="lg" onClick={submit}>SUBMIT</Button>
     </Col>
   </Row>
 })

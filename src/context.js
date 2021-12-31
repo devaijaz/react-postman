@@ -19,7 +19,7 @@ const HttpClientContext = React.createContext({
 
 const HttpClientDataProvider = ({ children }) => {
   const [method, setMethod] = useLocalStorage("method", "GET");
-  const [url, setUrl] = useLocalStorage("url", TEST_URL);
+  const [url, setUrl] = useLocalStorage("url", "");
   const [header, setHeader] = useLocalStorage("reqheader", []);
   const [queryString, setQueryString] = useLocalStorage("qs", []);
   const [body, setBody] = useLocalStorage("reqbody", null);
