@@ -23,6 +23,7 @@ const Home = () => {
     setResults({ ...defaultValue, loading: true });
     let newResult = { ...defaultValue };
     try {
+      new URL(url)
       const response = await getAxiosMethod(method)(url, {
         headers: {
           "Content-Type": "application/json", ...asMap(header)
